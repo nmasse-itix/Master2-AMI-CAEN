@@ -1,0 +1,220 @@
+\documentclass[a4paper,10pt]{article}
+
+% To include images
+\usepackage{graphicx}
+
+% Change the margins of the document
+\usepackage[top=1.5cm,bottom=2cm,left=1.5cm,right=1.5cm]{geometry}
+
+% No indentation but a wider space between the paragraphs
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{2mm}
+
+% Add a rule between the two columns and enlarge the space
+\usepackage{multicol}
+\setlength{\columnseprule}{.5pt}
+\setlength{\columnsep}{1cm}
+
+% French language
+\usepackage[francais]{babel}
+\usepackage[utf8]{inputenc}
+
+% Math extensions
+\usepackage{amsfonts}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{mathbbol}
+
+% Customize theorems
+\usepackage{theorem}
+\theoremstyle{break}
+
+% Some useful shortcuts
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Poly}{\mathbb{P}}
+\newcommand{\FF}{\F_2}
+\newcommand{\FFn}[1]{\FF^{#1}}
+\newcommand{\Zn}[1]{\mathbb{Z}_{#1}}
+\newcommand{\Zp}{\Zn{p}}
+\newcommand{\dg}[1]{\mathrm{d}^\circ(#1)}
+\newcommand{\cy}[1]{{<}#1{>}}
+
+% Definition of new environments
+\newtheorem{mydef}{Définition}
+\newtheorem{myprop}{Proposition}
+\newtheorem{myth}{Théorème}
+\newtheorem{mylemma}{Lemme}
+\newtheorem{mycor}{Corolaire}
+
+\newenvironment{note}[1]
+{\textbf{#1}:}
+{}
+
+\newenvironment{mydem}
+{\begin{note}{Démonstration}}
+{\end{note}}
+
+\newenvironment{myproof}
+{\begin{note}{Preuve}}
+{\end{note}}
+
+\newenvironment{remarque}
+{\begin{note}{Remarque}}
+{\end{note}}
+
+\newenvironment{proprietes}
+{\begin{note}{Propriétés}}
+{\end{note}}
+
+\newenvironment{exemple}
+{\begin{note}{Exemple}}
+{\end{note}}
+
+% Metadata
+\title{Hachage avec $SL_2$}
+\author{Nicolas MASSE \\ \texttt{nicolas27.masse@laposte.net}}
+\date{2 mars 2007}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Ce document est un résumé de l'article \og Hashing with $SL_2$~\fg~de Jean-Pierre Tillich et Gilles Zémor de l'ENST.
+Ils proposent une nouvelle famille de fonctions de hachage basées sur des calculs sur un corps fini de caractéristique 2.
+Ces fonctions peuvent être calculées rapidement, détecter de petites modifications du texte d'entrée, et leur sécurité 
+est équivalente à un problème mathématique précis. Elles reposent sur l'arithmétique du groupe de matrices $SL_2$.
+\end{abstract}
+
+\vspace{1cm}
+
+\begin{multicols}{2}
+\section{Introduction}
+Une fonction de hachage $H$ fait correspondre un ensemble de textes de longueur variable sur un alphabet $\A$ vers un 
+ensemble de textes de longueur fixe que l'on nomme \textit{hachés}.
+$$ H:\A^* \longmapsto \A^n $$ 
+Une fonction de hachage doit avoir les propriétés suivantes~:
+\begin{itemize}
+ \item Elle doit être facilement calculable
+ \item Il doit être calculatoirement difficile de trouver des collisions, c'est-à-dire deux textes ayant le même haché.
+\end{itemize}
+
+Les fonctions de hachage sont largement utilisées dans les protocoles cryptographiques. Malgré tout le travail réalisé 
+dans ce domaine, la sécurité de nombreuses propositions s'est révelée être faible et celles dont la sécurité n'a pas encore
+été mise en doute, restent toujours formellement non prouvée.
+
+La fonction proposée permet d'obtenir la propriété de sécurité inconditionnelle suivante~: \textit{les petites modifications
+du texte d'entrée sont toujours détectées}. Elle dispose également des propriétés suivantes~:
+\begin{itemize}
+ \item L'algorithme peut être aisément implémenté logiciellement en utilisant uniquement des opérations de base sur des corps
+  finis de caractéristique 2 à $2^n$ éléments ($130 \le n \le 170$), ce qui autorise des calculs rapides.
+ \item Il est facilement parallélisable.
+ \item Sa sécurité est équivalente à un problème mathématique précis.
+\end{itemize}
+
+\section{Stratégie de conception}
+\subsection{Construction générale}
+Soient un groupe fini $G$ et un ensemble de générateurs $S$ de la même taille que l'alphabet $\A$.
+On choisit une fonction $\pi: \A \longrightarrow S$ qui établit une bijection entre $\A$ et $S$.
+
+Le haché du texte $x_1x_2 \ldots x_k$ est alors l'élément du groupe 
+$$\pi(x_1)\pi(x_2) \ldots \pi(x_k)$$
+
+Cette construction présente deux avantages : la fonction dispose de la propriété de concaténation et 
+il est possible d'associer à cette construction un graphe de Cayley dont certains paramètres sont 
+applicables à la sécurité.
+
+La propriété de concaténation se définit comme suit. \textit{Si $x$ et $y$ sont deux textes, alors leur
+concaténation a pour haché $H(xy) = H(x)H(y)$.} Il en résulte que la fonction est aisément parallèlisable
+et si certaines parties du message sont connues à l'avance, il est possible de pré-calculer le haché de 
+ces parties.
+
+Le graphe de Cayley $\C(G,S)$ associé à $G$ permet de déterminer les paramètres de sécurité de la fonction. 
+
+\begin{mydef}[Circonférence d'un graphe]
+ La circonférence $\partial$ d'un graphe $G$ est le plus grand entier tel que, étant donné deux sommets $v$ et $w$,
+ n'importe quelle paire de chemins joignant $v$ à $w$ est telle qu'un de ces deux chemins a une longueur
+ de $\partial$ ou plus.
+\end{mydef}
+
+En particulier, une large circonférence $\partial$ de $\C(G,S)$ permet de se prémunir des modifications 
+locales. En effet, si on remplace $k$ symboles consécutifs d'un texte 
+$$ x = x_1x_2 \ldots x_i \ \boxed{x_{i+1} \ldots x_{i+k}} \ x_{i+k+1} \ldots x_t $$
+par une chaine de $h$ symboles telle que le texte résultant
+$$ x' = x_1x_2 \ldots x_i \ \boxed{y_{i+1} \ldots y_{i+h}} \ x_{i+k+1} \ldots x_t $$
+ait le même haché, alors ${\rm sup}(k, h) \ge \partial$.
+
+Une fonctionnalité importante des fonctions de hachage est l'équidistribution des hachés. Cette propriété 
+est garantie si le graphe de Cayley $\C(G,S)$ associé satisfait :
+
+\textit{Si $\C(G,S)$ est un graphe de Cayley tel que le PGCD de la longueur de ses cycles vaut 1, alors les hachés de 
+longueur $n$ de la fonction correspondante tendent vers l'équidistribution lorsque $n$ tend vers l'infini.}
+
+\subsection{Le choix de $SL_2$}
+Les groupes $SL_2(\F_q)$ de matrices $2 \times 2$ de déterminant 1 sur un corps fini $\F_q$ semblent être 
+un choix prometteur pour des fonctions de hachage de qualité et ceci pour deux raisons. Premièrement, 
+la fonction résultante est facile à calculer. Pour chaque bit du message on effectue quelques additions
+sur $\F_q$ (rapide si $q=2^n$). Deuxièmement, il est assez facile avec ces groupes d'obtenir des graphes 
+de Cayley ayant une large circonférence. Enfin, avec ces groupes la fonction tend rapidement vers 
+l'équidistribution.
+
+\subsection{Résistance aux collisions}
+Une autre fonctionnalité intéressante de ce schéma de hachage est que la résistance aux collisions 
+peut être exprimé en termes mathématiques. En effet, ce problème se réduit à trouver deux chaines de générateurs
+telles que les produits donnent le même résultat dans $G$. C'est à dire trouver $s_1,s_2, \ldots, s_n, \sigma_1,
+\sigma_2, \ldots, \sigma_m \in S$ tels que 
+$$ s_1s_2 \ldots s_n = \sigma_1\sigma_2 \ldots \sigma_m $$
+Bien sûr, il existe toujours des factorisations triviales dans un groupe fini ($s^{|G|} = 1, \forall s \in S$). 
+Cependant, au vu de la taille du groupe considéré ($|G| = 2^{500}$), ces factorisations sont sans objet.
+
+De plus, trouver la plus courte factorisation d'un élément choisi d'un groupe à partir d'un ensemble de générateurs
+a été prouvé être Pspace-complet et le choix de $SL_2$ pour $G$ accentue encore la difficulté de ce problème.
+
+\section{Définition}
+La fonction de hachage peut être définie de la manière suivante~:
+On choisit un polynôme irréductible $P_n(X)$ de degré $n$.
+Soient $A$ et $B$ les matrices suivantes.
+$$ A = \begin{pmatrix} X & 1 \\ 1 & 0 \end{pmatrix} \hspace{1cm} B = \begin{pmatrix} X & X + 1 \\ 1 & 1 \end{pmatrix} $$
+On définit l'application suivante.
+\begin{eqnarray*}
+\pi : \{0,1\} & \rightarrow & \{A,B\} \\
+0 & \mapsto & A \\
+1 & \mapsto &  B 
+\end{eqnarray*}
+Le haché du message binaire $x_1x_2 \ldots x_k$ est simplement le produit matriciel 
+$$ \pi(x_1)\pi(x_2) \ldots \pi(x_k) $$
+où les calculs sont faits sur le corps fini $\F_{2^n} = \F_2[X] / P_n(X)$ à $2^n$ éléments.
+Le hashé est donc un élément du groupe $SL_2(\F_{2^n})$ de matrices $2 \times 2$ ayant un
+déterminant égal à 1 sur $\F_{2^n}$. $3n + 1$ bits sont nécessaires pour encoder le haché
+(c'est-à-dire 390-510 bits).
+
+\subsection{Protection contre les modifications locales}
+On sait qu'un graphe de Cayley ayant une large circonférence protège des modifications
+locales. De plus, la circonférence d'un graphe de Cayley $\C(SL_2(\F_{2^n}), A, B)$ est 
+plus grande que $n$. C'est-à-dire qu'à $n$ fixé, on est sûr de détecter toute modification
+d'au plus $n$ bits consécutifs.
+
+\subsection{Résistance aux attaques par densité}
+Ces attaques consistent à trouver une chaîne de bits dont le haché est l'identité. La chaîne
+ainsi trouvée peut être insérée n'importe où sans changer le haché du message.
+
+Pour mener à bien cette attaque, il faut (étape 1) trouver une matrice $U$ de $SL_2(\F_2[X])$ 
+qui est égale à l'identité modulo $P_n(X)$, puis (étape 2) décomposer cette matrice $U$ sous 
+forme d'un produit de $A$ et $B$ dans $SL_2(\F_2[X])$ (si possible).
+
+La première étape est plutôt facile, mais la probabilité que l'étape 2 réussisse (c'est-à-dire
+que $U$ est décomposable en un produit de $A$ et $B$) est $$O\left(\frac{1}{2^n}\right)$$
+
+\section{Conclusion}
+Cette nouvelle famille de fonction de hachage basées sur des calculs dans $SL_2(\F_{2^n})$ 
+est rapide (au plus quelques shifts et XOR de 150 bits, 
+par bit du message), facilement parallèlisable et sa sécurité est équivalente à un 
+problème mathématique précis. 
+
+
+\end{multicols}
+
+\end{document}
+

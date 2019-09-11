@@ -1,0 +1,155 @@
+\documentclass[a4paper,10pt,twocolumn]{article}
+
+% To include images
+\usepackage{graphicx}
+
+% Change the margins of the document
+\usepackage[top=1.5cm,bottom=2cm,left=1.5cm,right=1.5cm]{geometry}
+
+% No indentation but a wider space between the paragraphs
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{2mm}
+
+% Add a rule between the two columns and enlarge the space
+\setlength{\columnseprule}{.5pt}
+\setlength{\columnsep}{1cm}
+
+% French language
+\usepackage[francais]{babel}
+\usepackage[utf8]{inputenc}
+
+% Math extensions
+\usepackage{amsfonts}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{mathbbol}
+
+% Customize theorems
+\usepackage{theorem}
+\theoremstyle{break}
+
+% Some useful shortcuts
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Poly}{\mathbb{P}}
+\newcommand{\FF}{\F_2}
+\newcommand{\FFn}[1]{\FF^{#1}}
+\newcommand{\Zn}[1]{\mathbb{Z}_{#1}}
+\newcommand{\Zp}{\Zn{p}}
+\newcommand{\dg}[1]{\mathrm{d}^\circ(#1)}
+\newcommand{\cy}[1]{{<}#1{>}}
+
+% Definition of new environments
+\newtheorem{mydef}{Définition}
+\newtheorem{myprop}{Proposition}
+\newtheorem{myth}{Théorème}
+\newtheorem{mylemma}{Lemme}
+\newtheorem{mycor}{Corolaire}
+
+\newenvironment{note}[1]
+{\textbf{#1}:}
+{}
+
+\newenvironment{mydem}
+{\begin{note}{Démonstration}}
+{\end{note}}
+
+\newenvironment{myproof}
+{\begin{note}{Preuve}}
+{\end{note}}
+
+\newenvironment{remarque}
+{\begin{note}{Remarque}}
+{\end{note}}
+
+\newenvironment{proprietes}
+{\begin{note}{Propriétés}}
+{\end{note}}
+
+\newenvironment{exemple}
+{\begin{note}{Exemple}}
+{\end{note}}
+
+% Metadata
+\title{Devoir de Cryptographie}
+\author{Nicolas MASSE \\ \texttt{nicolas27.masse@laposte.net}}
+\date{2006-2007}
+
+\begin{document}
+
+\maketitle
+
+\section{Preuves de sécurité}
+
+\subsection{Question 1}
+Il est possible de vérifier la signature en utilisant la signature, la clé publique et le condensé du message :
+$$ P\sigma \stackrel{?}{=} A.H(m) $$
+
+En effet, $P\sigma = P.a.H(m) = A.H(m)$.
+\subsection{Question 2}
+La sécurité de référence pour un schéma de signature a été présenté par \textsc{Goldwasser}, \textsc{Mirali} 
+et \textsc{Rivest}. Il s'agit d'EF-CMA (Existential Forgery, Chosen Message Attack). Il s'agit de l'attaque 
+la plus facile à mener pour un attaquant.
+
+\subsection{Question 4}
+Le problème calculatoire Diffie-Hellman (CDH) consiste à retrouver $g^{ab}$ à partir de $g^a$ et $g^b$.
+
+\subsection{Question 5}
+L'idée serait d'utiliser la relation $e(aP,bP) = e(P,P)^{ab}$ avec $e(P,P) = g$.
+
+\section{Logarithme composite}
+\subsection{Question 1}
+On sait que $g \in \Zn{n}^{*}$; c'est à dire que $g$ est inversible. On en déduit alors que 
+ $$pgcd(g,n) = 1$$
+Et d'après le théorème d'Euler, on a $g^{\varphi(n)} \equiv 1 \mod n$.
+
+On sait que $g^{\varphi(n)} = 1$. On a donc 
+\begin{eqnarray*}
+ g^{\varphi(n)} & = & g^0 \\
+ g^{(p-1)(q-1)} & = & g^0 \\
+ g^{pq-p-q+1} & = & g^0 \\
+ g^{pq+1} g^{-(p+q)} & = & g^0 \\
+ g^{n+1} & = & g^{p+q}
+\end{eqnarray*}
+
+\subsection{Question 2}
+On sait que 
+\begin{eqnarray*}
+ \varphi(n) & = & (p-1)(q-1) \\
+ & = & pq -p -q +1 \\
+ & = & n -(p+q) +1 
+\end{eqnarray*}
+
+C'est-à-dire que si on connait $n$ et $p+q$, on connait également $\varphi(n)$.
+Et à partir de $\varphi(n)$ on peut retrouver $p$ et $q$.
+
+\begin{eqnarray*}
+ \varphi(n) & = & (p-1)(q-1) \\
+ \varphi(n) & = & (p-1)(\frac{n}{p}-1) \\
+ \varphi(n) & = & n - p - \frac{n}{p} + 1 \\
+ \varphi(n) - n + p + \frac{n}{p} - 1 & = & 0 \\
+ p^2 + (\varphi(n) - n - 1)p + n & = & 0
+\end{eqnarray*}
+
+Et connaissant $p$, il est trivial de trouver $q$.
+
+\subsection{Question 3}
+
+Si $f > p + q$, alors il est possible d'utiliser l'algorithme A pour factoriser $n$:
+
+\begin{eqnarray*}
+g^{n + 1} & = & g^{\varphi(n) + (p+q)} \\
+& = & g^{\varphi(n)} . g^{p+q} \\
+& = & g^{p+q}
+\end{eqnarray*}
+
+Le calcul de $\log_{(n,g)}(g^{n+1})$ permet de retrouver $p + q$, et donc de factoriser $n$. La complexité de B est alors équivalente à celle de A.
+
+\subsection{Question 4}
+
+La réciproque, c'est à dire la construction de A à partir de B n'est pas vraie, la factorisation de $n$ ne suffisant pas pour obtenir le logarithme discret.
+
+
+\end{document}
+

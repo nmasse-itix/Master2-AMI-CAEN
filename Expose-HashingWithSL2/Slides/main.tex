@@ -1,0 +1,323 @@
+\documentclass{beamer}
+
+% Copyright 2004 by Till Tantau <tantau@users.sourceforge.net>.
+%
+% In principle, this file can be redistributed and/or modified under
+% the terms of the GNU Public License, version 2.
+%
+% However, this file is supposed to be a template to be modified
+% for your own needs. For this reason, if you use this file as a
+% template and not specifically distribute it as part of a another
+% package/program, I grant the extra permission to freely copy and
+% modify this file as you see fit and even to delete this copyright
+% notice. 
+
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\C}{\mathcal{C}}
+\newcommand{\F}{\mathbb{F}}
+
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+  % or ...
+
+  %\setbeamercovered{transparent}
+  % or whatever (possibly just delete it)
+}
+
+
+\usepackage[french,english]{babel}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{times}
+%\usepackage[T1]{fontenc}
+% Or whatever. Note that the encoding and the font should match. If T1
+% does not look nice, try deleting the line with the fontenc.
+
+
+\title{Hachage avec $SL_2$}
+
+\subtitle{Exposé M2-AMI}
+
+\author{N.~MASSE}
+
+\institute
+{
+  M2-AMI\\
+  Université de CAEN
+}
+
+\date{2 Mars 2007}
+
+\subject{Cryptographie}
+
+% If you have a file called "university-logo-filename.xxx", where xxx
+% is a graphic format that can be processed by latex or pdflatex,
+% resp., then you can add a logo as follows:
+
+\pgfdeclareimage[height=0.5cm]{university-logo}{unicaen}
+\logo{\pgfuseimage{university-logo}}
+
+
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+\AtBeginSubsection[]
+{
+  \begin{frame}<beamer>
+    \frametitle{Outline}
+    \tableofcontents[currentsection,currentsubsection]
+  \end{frame}
+}
+
+
+% If you wish to uncover everything in a step-wise fashion, uncomment
+% the following command: 
+
+%\beamerdefaultoverlayspecification{<+->}
+
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Sommaire}
+  \tableofcontents
+  % You might wish to add the option [pausesections]
+\end{frame}
+
+
+% Structuring a talk is a difficult task and the following structure
+% may not be suitable. Here are some rules that apply for this
+% solution: 
+
+% - Exactly two or three sections (other than the summary).
+% - At *most* three subsections per section.
+% - Talk about 30s to 2min per frame. So there should be between about
+%   15 and 30 frames, all told.
+
+% - A conference audience is likely to know very little of what you
+%   are going to talk about. So *simplify*!
+% - In a 20min talk, getting the main ideas across is hard
+%   enough. Leave out details, even if it means being less precise than
+%   you think necessary.
+% - If you omit details that are vital to the proof/implementation,
+%   just say so once. Everybody will be happy with that.
+
+\section{Introduction}
+
+\begin{frame}
+ \frametitle{Fonction de Hachage}
+ \begin{definition}
+  Une fonction de hachage $H$ fait correspondre un ensemble de textes de longueur variable sur un alphabet $\A$ vers un 
+  ensemble de textes de longueur fixe que l'on nomme \textit{hachés}.
+   $$ H:\A^* \longmapsto \A^n $$ 
+ \end{definition}
+
+ \begin{example}
+  MD5, SHA-1, RIPEMD
+ \end{example}
+\end{frame}
+
+\begin{frame}
+ \frametitle{Fonction de Hachage (2)}
+ \begin{itemize}
+  \item Propriétés
+ \begin{itemize}
+  \item Facilement calculable
+  \item Calculatoirement difficile de trouver des collisions
+ \end{itemize}
+ \item En général, pas de preuve formelle de la sécurité 
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+ \frametitle{Fonction proposée}
+ \begin{itemize}
+  \item Implémentation simple et rapide
+  \item Facilement parallèlisable
+  \item Sécurité équivalente à un problème mathématique précis
+ \end{itemize}
+\end{frame}
+
+\section{Fonctionnement}
+\subsection{Construction générale}
+
+\begin{frame}
+ \frametitle{Construction}
+ \begin{enumerate}
+ \item Soient un groupe fini $G$ et un ensemble de générateurs $S$ de la même taille que l'alphabet $\A$.
+ \pause
+ \item On choisit une fonction bijective $$ \pi: \A \longrightarrow S$$
+ \pause
+ \item Le haché du texte $x_1x_2 \ldots x_k$ est alors l'élément $$ \pi(x_1)\pi(x_2) \ldots \pi(x_k) $$
+ \end{enumerate}
+\end{frame}
+
+\begin{frame}
+ \frametitle{Avantages}
+ \begin{itemize}
+  \item Propriété de concaténation
+  \item Paramètres de sécurité définis par le graphe de Cayley
+ \end{itemize}
+ \pause 
+ \begin{definition}[Concaténation]
+  Si $x$ et $y$ sont deux textes, alors leur concaténation a pour haché $H(xy) = H(x)H(y)$.
+ \end{definition}
+\end{frame}
+
+\begin{frame}
+ \frametitle{Graphe de Cayley}
+ 
+ \begin{definition}[Circonférence d'un graphe]
+  La circonférence $\partial$ d'un graphe $G$ est le plus grand entier tel que, étant donné deux sommets $v$ et $w$,
+  n'importe quelle paire de chemins joignant $v$ à $w$ est telle qu'un de ces deux chemins a une longueur
+  de $\partial$ ou plus.
+ \end{definition}
+ \pause
+ Si on remplace $k$ symboles consécutifs d'un texte 
+ $$ x = x_1x_2 \ldots x_i \ \boxed{x_{i+1} \ldots x_{i+k}} \ x_{i+k+1} \ldots x_t $$
+ par une chaine de $h$ symboles telle que le texte résultant
+ $$ x' = x_1x_2 \ldots x_i \ \boxed{y_{i+1} \ldots y_{i+h}} \ x_{i+k+1} \ldots x_t $$
+ ait le même haché, alors ${\rm sup}(k, h) \ge \partial$.
+\end{frame}
+
+\begin{frame}
+ \frametitle{Équidistribution}
+ 
+ L'équidistribution est garantie si le graphe de Cayley $\C(G,S)$ associé satisfait~:
+ \begin{theorem}
+  Si $\C(G,S)$ est un graphe de Cayley tel que le PGCD de la longueur de ses cycles vaut 1, alors les hachés de 
+  longueur $n$ de la fonction correspondante tendent vers l'équidistribution lorsque $n$ tend vers l'infini.
+ \end{theorem}
+\end{frame}
+
+\subsection{Choix de $SL_2$}
+\begin{frame}
+ \frametitle{$SL_2$}
+
+ \begin{itemize}
+  \item $SL_2(\F_q)$ : groupe des matrices $2 \times 2$ \\ de déterminant 1 sur $\F_q$
+  \item Plusieurs avantages
+  \begin{itemize}
+   \item Rapidité de calcul (pour $q=2^n$)
+   \item Graphe de Cayley de large circonférence
+   \item Tend rapidement vers l'équidistribution
+  \end{itemize}
+ \end{itemize}
+\end{frame}
+
+\subsection{Résistance aux collisions}
+
+\begin{frame}
+ \frametitle{Résistance aux collisions}
+ \begin{itemize}
+  \item C'est un problème mathématique !
+  \item Trouver $s_1,s_2, \ldots, s_n, \sigma_1, \sigma_2, \ldots, \sigma_m \in S$ tels que 
+     $$ s_1s_2 \ldots s_n = \sigma_1\sigma_2 \ldots \sigma_m $$
+  \pause 
+  \item Les factorisations triviales existent
+     $$ s^{|G|} = 1, \forall s \in S $$
+  \pause 
+  \item mais sont futiles car $|G|$ est grand ($|G| = 2^{500}$)
+ \end{itemize}
+\end{frame}
+
+\begin{frame}
+ \frametitle{Complexité}
+ \begin{block}{Complexité de la factorisation}
+  Trouver la plus courte factorisation d'un élément choisi d'un groupe à partir d'un ensemble de générateurs
+  a été prouvé être Pspace-complet et le choix de $SL_2$ pour $G$ accentue encore la difficulté de ce problème.
+ \end{block}
+\end{frame}
+
+\section{Choix des paramètres}
+
+\begin{frame}
+ \frametitle{Définition de la fonction}
+On choisit un polynôme irréductible $P_n(X)$ de degré $n$ ($130 \le n \le 170$).
+Soient $A$ et $B$ les matrices suivantes.
+$$ A = \begin{pmatrix} X & 1 \\ 1 & 0 \end{pmatrix} \hspace{1cm} B = \begin{pmatrix} X & X + 1 \\ 1 & 1 \end{pmatrix} $$
+\pause
+On définit l'application suivante.
+\begin{eqnarray*}
+\pi : \{0,1\} & \rightarrow & \{A,B\} \\
+0 & \mapsto & A \\
+1 & \mapsto &  B 
+\end{eqnarray*}
+\end{frame}
+
+\begin{frame}
+ \frametitle{Définition de la fonction}
+Le haché du message binaire $x_1x_2 \ldots x_k$ est simplement le produit matriciel 
+$$ \pi(x_1)\pi(x_2) \ldots \pi(x_k) $$
+où les calculs sont faits sur le corps fini $\F_{2^n} = \F_2[X] / P_n(X)$ à $2^n$ éléments.
+\pause
+\begin{block}{Encodage}
+ $|SL_2(\F_{2^n})| = 2^n(2^{2n} - 1) \Rightarrow 3n + 1$ bits sont nécessaires 
+ pour encoder le haché (c'est-à-dire 390-510 bits).
+\end{block}
+\end{frame}
+
+\subsection{Protection contre les modifications locales}
+
+\begin{frame}
+ \frametitle{Protection contre les modifications locales}
+ 
+ \begin{theorem}
+  La circonférence d'un graphe de Cayley $\C(SL_2(\F_{2^n}), A, B)$ est 
+  plus grande que $n$. 
+ \end{theorem}
+
+ $\Longrightarrow$ À $n$ fixé, on est sûr de détecter toute modification d'au plus $n$ bits consécutifs.
+\end{frame}
+
+\subsection{Résistance aux attaques par densité}
+
+\begin{frame}
+ \frametitle{Attaques par densité}
+
+\begin{block}{Description}
+\begin{itemize}
+ \item Trouver une chaîne de bits dont le haché est l'identité
+ \item Elle peut être insérée n'importe où sans changer le haché du message
+\end{itemize}
+\end{block}
+\pause
+\begin{block}{Déroulement de l'attaque}
+\begin{enumerate}
+ \item trouver une matrice $U$ de $SL_2(\F_2[X])$ qui est égale à l'identité modulo $P_n(X)$
+ \item décomposer cette matrice $U$ sous forme d'un produit de $A$ et $B$ dans $SL_2(\F_2[X])$ (si possible)
+\end{enumerate}
+\end{block}
+\end{frame}
+
+\begin{frame}
+ \frametitle{Résistance aux attaques par densité}
+ \begin{itemize}
+  \item Première étape $\rightarrow$ plutôt facile
+  \pause
+  \item la probabilité que l'étape 2 réussisse (c'est-à-dire
+   que $U$ est décomposable en un produit de $A$ et $B$) est $$O\left(\frac{1}{2^n}\right)$$
+ \end{itemize}
+\end{frame}
+
+\subsection{Conclusion}
+
+\begin{frame}
+ \frametitle{Conclusion}
+ Cette nouvelle famille de fonctions de hachage basées sur $SL_2$ sont
+ \begin{itemize}
+  \item rapides (quelques shifts/XOR de 150 bits, par bit de message),
+  \item parallèlisables,
+  \item et leur sécurité est équivalente à un problème mathématique précis.
+ \end{itemize}
+\end{frame}
+
+\end{document}
+
+
